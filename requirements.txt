@@ -1,1 +1,5 @@
 django
+djangorestframework
+djangorestframework_simplejwt
+pymysql
+mysqlclient
