@@ -28,3 +28,7 @@ class CategoryAPI(APIView):
             return Response({"status_code":200, "message":"Category added successfully"})
         else:
             return Response(serializer.errors)
+    def get(self, request):
+        categories = Category.objects.all()
+        serializer = CategorySerializer(categories, many=True)
+        return Response(serializer.data)
