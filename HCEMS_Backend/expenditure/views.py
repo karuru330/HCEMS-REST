@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .serializers import CategorySerializer
-from .models import Category
+from .serializers import CategorySerializer, ExpenditureSerializer, StageSerializer
+from .models import Category, Expenditure, Stage
 from rest_framework.views import APIView
 from rest_framework.parsers import FormParser, MultiPartParser
 
@@ -31,4 +31,34 @@ class CategoryAPI(APIView):
     def get(self, request):
         categories = Category.objects.all()
         serializer = CategorySerializer(categories, many=True)
+        return Response(serializer.data)
+    
+class StageAPI(APIView):
+    def post(self, request):
+        data = request.data
+        serializer = StageSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"status_code":200, "message":"Stage has been added successfully"})
+        else:
+            return Response(serializer.errors)
+        
+    def get(self, request):
+        stages = Stage.objects.all()
+        serializer = StageSerializer(stages, many=True)
+        return Response(serializer.data)
+        
+class ExpenditureAPI(APIView):
+    def post(self, request):
+        data = request.data
+        serializer = ExpenditureSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"status_code":200, "message":"Expenditure has been added successfully"})
+        else:
+            return Response(serializer.errors)
+    
+    def get(self, request):
+        expenditures = Expenditure.objects.all()
+        serializer = ExpenditureSerializer(expenditures, many=True)
         return Response(serializer.data)
