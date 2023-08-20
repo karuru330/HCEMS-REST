@@ -5,6 +5,7 @@ from .serializers import CategorySerializer, ExpenditureSerializer, StageSeriali
 from .models import Category, Expenditure, Stage
 from rest_framework.views import APIView
 from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework import status
 
 # Create your views here.
 from .models import Category
@@ -25,13 +26,13 @@ class CategoryAPI(APIView):
         serializer = CategorySerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"status_code":200, "message":"Category added successfully"})
+            return Response({"message":"Category added successfully"}, status=status.HTTP_201_CREATED)
         else:
-            return Response(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     def get(self, request):
         categories = Category.objects.all()
         serializer = CategorySerializer(categories, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
 class StageAPI(APIView):
     def post(self, request):
@@ -39,14 +40,14 @@ class StageAPI(APIView):
         serializer = StageSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"status_code":200, "message":"Stage has been added successfully"})
+            return Response({"message":"Stage has been added successfully"}, status=status.HTTP_201_CREATED)
         else:
-            return Response(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
     def get(self, request):
         stages = Stage.objects.all()
         serializer = StageSerializer(stages, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
         
 class ExpenditureAPI(APIView):
     def post(self, request):
@@ -54,11 +55,25 @@ class ExpenditureAPI(APIView):
         serializer = ExpenditureSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"status_code":200, "message":"Expenditure has been added successfully"})
+            return Response({"message":"Expenditure has been added successfully"}, status=status.HTTP_201_CREATED)
         else:
-            return Response(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
     
     def get(self, request):
         expenditures = Expenditure.objects.all()
         serializer = ExpenditureSerializer(expenditures, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def patch(self, request):
+        data = request.data
+        obj = Expenditure.objects.get(id=data["id"])
+        if obj:
+            serializer = ExpenditureSerializer(obj, data=data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"message":"Expenditure has been updated successfully"}, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"message":"No records exists"}, status=status.HTTP_400_BAD_REQUEST)
