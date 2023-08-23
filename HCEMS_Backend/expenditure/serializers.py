@@ -25,3 +25,11 @@ class ExpenditureSerializer(serializers.ModelSerializer):
     class Meta:
         model = Expenditure
         fields = "__all__"
+
+class categoryWiseExpenditureSerializer(serializers.Serializer):
+    category_name = serializers.CharField(max_length=100)
+    total_price = serializers.IntegerField()
+
+class stageWiseExpenditureSerializer(serializers.Serializer):
+    stage_name = serializers.CharField(max_length=50)
+    total_price = serializers.IntegerField()

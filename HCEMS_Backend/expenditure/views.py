@@ -1,11 +1,12 @@
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .serializers import CategorySerializer, ExpenditureSerializer, StageSerializer
+from .serializers import CategorySerializer, ExpenditureSerializer, StageSerializer, categoryWiseExpenditureSerializer, stageWiseExpenditureSerializer
 from .models import Category, Expenditure, Stage
 from rest_framework.views import APIView
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework import status
+from django.db.models import Sum
 
 # Create your views here.
 from .models import Category
@@ -35,6 +36,8 @@ class CategoryAPI(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 class StageAPI(APIView):
+    permission_classes = [IsAuthenticated,]
+
     def post(self, request):
         data = request.data
         serializer = StageSerializer(data=data)
@@ -50,6 +53,8 @@ class StageAPI(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
         
 class ExpenditureAPI(APIView):
+    permission_classes = [IsAuthenticated,]
+
     def post(self, request):
         data = request.data
         serializer = ExpenditureSerializer(data=data)
@@ -77,3 +82,19 @@ class ExpenditureAPI(APIView):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({"message":"No records exists"}, status=status.HTTP_400_BAD_REQUEST)
+
+class categoryWiseExpenditureAPI(APIView):
+    permission_classes = [IsAuthenticated,]
+
+    def get(self, request):
+        data = Expenditure.objects.values('category_name').annotate(total_price=Sum('price'))
+        serializer = categoryWiseExpenditureSerializer(data, many=True)
+        return Response(serializer.data)
+
+class stageWiseExpenditureAPI(APIView):
+    permission_classes = [IsAuthenticated,]
+
+    def get(self, request):
+        data = Expenditure.objects.values('stage_name').annotate(total_price=Sum('price'))
+        serializer = stageWiseExpenditureSerializer(data, many=True)
+        return Response(serializer.data)
